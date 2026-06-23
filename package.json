@@ -1,0 +1,16 @@
+{
+  "name": "card-battle-game",
+  "version": "1.0.0",
+  "description": "六兽相克 · 双人在线卡牌对战",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "ws": "^8.18.0"
+  }
+}
