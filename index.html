@@ -2,7 +2,9 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0f1419">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <title>六兽相克 · 卡牌对战</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,6 +22,18 @@
       --text: #e8e4dc;
       --text-dim: #8a939f;
       --shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+
+      /* 卡牌 — 换自己的图时改这里与各 .card-XXX */
+      --card-hand-w: 88px;
+      --card-hand-h: 122px;
+      --card-played-w: 100px;
+      --card-played-h: 140px;
+      --card-radius: 12px;
+      --card-border-w: 3px;
+      --card-select-outline: 4px;
+      --card-select-offset: 5px;
+      --card-select-color: var(--gold-light);
+      --card-text-opacity: 1;
     }
 
     * {
@@ -33,7 +47,9 @@
       background: var(--bg-deep);
       color: var(--text);
       min-height: 100vh;
+      min-height: 100dvh;
       overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body::before {
@@ -53,11 +69,14 @@
       max-width: 960px;
       margin: 0 auto;
       padding: 24px 16px 40px;
+      padding-left: max(16px, env(safe-area-inset-left));
+      padding-right: max(16px, env(safe-area-inset-right));
     }
 
     header {
       text-align: center;
       margin-bottom: 28px;
+      padding: 0 52px;
     }
 
     header h1 {
@@ -87,8 +106,134 @@
     .status-bar.error { color: var(--red); }
     .status-bar.ok { color: var(--green); }
 
+    .hub-banner {
+      text-align: center;
+      margin-bottom: 24px;
+      padding: 20px 16px;
+      background: linear-gradient(135deg, rgba(212, 168, 83, 0.12), rgba(91, 155, 213, 0.08));
+      border-radius: 16px;
+      border: 1px solid rgba(212, 168, 83, 0.2);
+    }
+
+    .hub-tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      color: var(--gold-light);
+      background: rgba(212, 168, 83, 0.15);
+      border: 1px solid rgba(212, 168, 83, 0.3);
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+
+    .hub-desc {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .game-card {
+      text-align: left;
+      padding: 18px 16px;
+      background: var(--bg-panel);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+      min-height: 148px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .game-card:not(.soon):active {
+      transform: scale(0.97);
+    }
+
+    .game-card:not(.soon):hover {
+      border-color: rgba(212, 168, 83, 0.45);
+      box-shadow: 0 8px 28px rgba(212, 168, 83, 0.15);
+    }
+
+    .game-card.soon {
+      opacity: 0.55;
+      cursor: default;
+    }
+
+    .game-card-icon {
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .game-card-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--gold-light);
+    }
+
+    .game-card-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .game-card-meta span {
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-dim);
+    }
+
+    .game-card-meta span.live {
+      color: var(--green);
+      background: rgba(76, 175, 122, 0.12);
+    }
+
+    .game-card-desc {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+      flex: 1;
+    }
+
+    .hub-note {
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+      padding: 16px;
+      background: var(--bg-panel);
+      border-radius: 12px;
+      border: 1px dashed rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 0.85rem;
+      padding: 0 0 16px;
+      min-height: auto;
+      font-weight: 600;
+    }
+
+    .btn-back:active {
+      color: var(--gold-light);
+    }
+
     .lobby {
-      max-width: 420px;
+      max-width: 480px;
       margin: 0 auto 28px;
       background: var(--bg-panel);
       border-radius: 16px;
@@ -108,6 +253,8 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
+      width: 100%;
+      min-width: 0;
     }
 
     .lobby-divider {
@@ -129,15 +276,27 @@
     .join-row {
       display: flex;
       gap: 10px;
+      align-items: stretch;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .join-row .btn-secondary {
+      flex: 0 0 auto;
+      min-width: 72px;
+      padding: 12px 14px;
+      white-space: nowrap;
+      letter-spacing: 0.04em;
     }
 
     .join-row input {
-      flex: 1;
+      flex: 1 1 0;
+      min-width: 0;
       font-family: inherit;
-      font-size: 1.2rem;
-      letter-spacing: 0.3em;
+      font-size: 1.1rem;
+      letter-spacing: 0.2em;
       text-align: center;
-      padding: 12px;
+      padding: 12px 10px;
       border-radius: 10px;
       border: 1px solid rgba(255,255,255,0.12);
       background: var(--bg-card);
@@ -166,6 +325,41 @@
       color: var(--text-dim);
       font-size: 0.9rem;
       line-height: 1.6;
+    }
+
+    .share-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    .share-actions button {
+      padding: 10px 18px;
+      font-size: 0.85rem;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: rgba(26, 35, 50, 0.95);
+      border: 1px solid rgba(212, 168, 83, 0.4);
+      color: var(--gold-light);
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      z-index: 200;
+      opacity: 0;
+      transition: transform 0.3s, opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
     }
 
     .pulse-dot {
@@ -261,9 +455,9 @@
     }
 
     .played-card {
-      width: 100px;
-      height: 140px;
-      border-radius: 10px;
+      width: var(--card-played-w);
+      height: var(--card-played-h);
+      border-radius: var(--card-radius);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -326,55 +520,114 @@
       letter-spacing: 0.1em;
     }
 
-    .card-烂头 { background: linear-gradient(160deg, #4a3728, #2d2118); border: 2px solid #8b6914; }
-    .card-枪   { background: linear-gradient(160deg, #3d4f5f, #253040); border: 2px solid #7a8fa6; }
-    .card-老虎 { background: linear-gradient(160deg, #5c4033, #3d2a22); border: 2px solid #c4783a; }
-    .card-人   { background: linear-gradient(160deg, #3a4a5c, #243040); border: 2px solid #6a8caf; }
-    .card-鸡   { background: linear-gradient(160deg, #4a4030, #2e2818); border: 2px solid #d4a853; }
-    .card-蜜蜂 { background: linear-gradient(160deg, #4a4520, #2e2a12); border: 2px solid #e8c547; }
+    /* 各牌型变量；整图示例：--card-image: url('cards/烂头.png'); --card-text-opacity: 0; */
+    .card-烂头 { --card-bg: linear-gradient(160deg, #4a3728, #2d2118); --card-border-color: #8b6914; }
+    .card-枪   { --card-bg: linear-gradient(160deg, #3d4f5f, #253040); --card-border-color: #7a8fa6; }
+    .card-老虎 { --card-bg: linear-gradient(160deg, #5c4033, #3d2a22); --card-border-color: #c4783a; }
+    .card-人   { --card-bg: linear-gradient(160deg, #3a4a5c, #243040); --card-border-color: #6a8caf; }
+    .card-鸡   { --card-bg: linear-gradient(160deg, #4a4030, #2e2818); --card-border-color: #d4a853; }
+    .card-蜜蜂 { --card-bg: linear-gradient(160deg, #4a4520, #2e2a12); --card-border-color: #e8c547; }
+
+    .hand-dock {
+      margin-top: 12px;
+    }
+
+    .hand-scroll {
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+
+    .hand-scroll::-webkit-scrollbar {
+      display: none;
+    }
 
     .hand {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       justify-content: center;
-      margin-top: 16px;
+      margin-top: 0;
       min-height: 100px;
     }
 
+    #handLabel {
+      width: 100%;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+
+    #handLabel:empty {
+      display: none;
+    }
+
     .hand-card {
-      width: 72px;
-      height: 100px;
-      border-radius: 8px;
+      position: relative;
+      width: var(--card-hand-w);
+      height: var(--card-hand-h);
+      border-radius: var(--card-radius);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 4px;
+      padding: 6px;
       font-weight: 700;
       cursor: pointer;
       font-family: inherit;
-      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
-      box-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+      transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s, outline 0.18s, opacity 0.15s;
+      box-shadow: 2px 4px 0 rgba(0, 0, 0, 0.35);
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      outline: var(--card-select-outline) solid transparent;
+      outline-offset: var(--card-select-offset);
     }
 
-    .hand-card .card-icon { font-size: 1.8rem; }
-    .hand-card .card-label { font-size: 0.75rem; }
+    .hand-card .card-icon { font-size: 2rem; }
+    .hand-card .card-label { font-size: 0.8rem; }
 
-    .hand-card:hover:not(:disabled) {
+    .hand-card:not(:disabled):not(.selected):hover {
       transform: translateY(-6px);
-      box-shadow: 0 8px 20px rgba(212, 168, 83, 0.3);
+      outline-color: rgba(240, 215, 140, 0.45);
+      box-shadow: 0 10px 22px rgba(212, 168, 83, 0.28), 2px 4px 0 rgba(0, 0, 0, 0.35);
     }
 
     .hand-card:disabled {
       opacity: 0.35;
       cursor: not-allowed;
       transform: none;
+      outline-color: transparent;
+    }
+
+    .hand-card:not(:disabled):active:not(.selected) {
+      transform: scale(0.94);
+    }
+
+    .hand-card .card-beat {
+      font-size: 0.65rem;
+      color: var(--gold-light);
+      background: rgba(15, 20, 25, 0.72);
+      border: 1px solid rgba(212, 168, 83, 0.45);
+      padding: 2px 7px;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
     }
 
     .hand-card.selected {
-      outline: 3px solid var(--gold);
-      transform: translateY(-4px);
+      border-color: var(--card-select-color);
+      outline-color: var(--card-select-color);
+      transform: translateY(-10px) scale(1.05);
+      z-index: 3;
+      box-shadow:
+        0 0 0 8px rgba(212, 168, 83, 0.2),
+        0 0 24px rgba(240, 215, 140, 0.5),
+        0 12px 28px rgba(0, 0, 0, 0.45);
     }
 
     .arena {
@@ -452,15 +705,45 @@
       font-weight: 700;
       letter-spacing: 0.08em;
       transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+      touch-action: manipulation;
+      min-height: 44px;
     }
 
-    button:active:not(:disabled) {
+    button:active:not(:disabled):not(.hand-card):not(.music-toggle) {
       transform: scale(0.97);
     }
 
     button:disabled {
       opacity: 0.4;
       cursor: not-allowed;
+    }
+
+    /* 手牌/出牌区：必须在 button 重置之后，避免白底与无边框 */
+    button.hand-card,
+    .played-card[class*="card-"] {
+      -webkit-appearance: none;
+      appearance: none;
+      color: var(--text);
+      padding: 6px;
+      min-height: unset;
+      letter-spacing: 0.04em;
+    }
+
+    button.hand-card[class*="card-"],
+    .played-card[class*="card-"] {
+      background-color: #243044;
+      background-image: var(--card-image, var(--card-bg));
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      border: var(--card-border-w) solid var(--card-border-color);
+    }
+
+    button.hand-card[class*="card-"] .card-icon,
+    button.hand-card[class*="card-"] .card-label,
+    .played-card[class*="card-"] .card-icon,
+    .played-card[class*="card-"] .card-label {
+      opacity: var(--card-text-opacity, 1);
     }
 
     .btn-primary {
@@ -477,6 +760,11 @@
       background: var(--bg-card);
       color: var(--text);
       border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .btn-small {
+      padding: 10px 20px;
+      font-size: 0.85rem;
     }
 
     .btn-secondary:hover:not(:disabled) {
@@ -593,28 +881,323 @@
       border-bottom: 1px solid rgba(255,255,255,0.04);
     }
 
+    .music-toggle {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      right: max(12px, env(safe-area-inset-right));
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      min-height: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(212, 168, 83, 0.35);
+      background: rgba(26, 35, 50, 0.92);
+      color: var(--gold-light);
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      letter-spacing: 0;
+      font-weight: 400;
+      line-height: 0;
+      box-sizing: border-box;
+      overflow: hidden;
+      transition: transform 0.15s, border-color 0.15s, opacity 0.15s;
+    }
+
+    .music-toggle .music-icon {
+      display: block;
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .music-toggle:active:not(:disabled) { transform: scale(0.94); }
+
+    .music-toggle.off {
+      opacity: 0.65;
+      color: var(--text-dim);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    /* 克制比牌动画层 — 换自己的图时可改 .matchup-actor 为 background-image */
+    .matchup-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.6);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+
+    .matchup-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .matchup-scene {
+      position: relative;
+      width: min(340px, 92vw);
+      height: 210px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 8px;
+    }
+
+    .matchup-caption {
+      font-size: clamp(1rem, 4vw, 1.2rem);
+      font-weight: 700;
+      color: var(--gold-light);
+      margin-bottom: 20px;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
+      animation: caption-pop 0.35s ease-out;
+      letter-spacing: 0.06em;
+    }
+
+    .matchup-actors {
+      position: relative;
+      width: 100%;
+      height: 110px;
+    }
+
+    .matchup-actor {
+      position: absolute;
+      top: 50%;
+      font-size: clamp(3rem, 14vw, 4.2rem);
+      line-height: 1;
+      filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.55));
+      will-change: transform, left, right;
+    }
+
+    .matchup-actor.winner { left: 12%; transform: translateY(-50%); }
+    .matchup-actor.loser { right: 12%; transform: translateY(-50%); }
+
+    @keyframes caption-pop {
+      from { opacity: 0; transform: scale(0.85); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes hit-shake {
+      0%, 100% { transform: translateY(-50%) translateX(0); }
+      20% { transform: translateY(-50%) translateX(10px) rotate(8deg); }
+      40% { transform: translateY(-50%) translateX(-8px) rotate(-8deg); }
+      60% { transform: translateY(-50%) translateX(6px); }
+      80% { transform: translateY(-58%) scale(0.9); }
+    }
+
+    .bee-sting .winner { animation: bee-fly-sting 1.05s ease-in forwards; }
+    .bee-sting .loser { animation: hit-shake 0.55s 0.8s ease-out forwards; }
+
+    @keyframes bee-fly-sting {
+      0% { left: 12%; transform: translateY(-50%) scale(1); }
+      65% { left: 58%; transform: translateY(-65%) scale(1.25) rotate(-20deg); }
+      85% { left: 62%; transform: translateY(-50%) scale(1.15) rotate(5deg); }
+      100% { left: 58%; transform: translateY(-50%) scale(1.1); }
+    }
+
+    .man-chicken .winner { animation: man-chase 1.15s ease-in-out forwards; }
+    .man-chicken .loser { animation: chicken-flee 1.15s ease-in-out forwards; }
+
+    @keyframes man-chase {
+      0% { left: 8%; transform: translateY(-50%); }
+      100% { left: 52%; transform: translateY(-50%) scale(1.2); }
+    }
+
+    @keyframes chicken-flee {
+      0% { right: 12%; transform: translateY(-50%); opacity: 1; }
+      40% { right: 5%; transform: translateY(-70%) rotate(-25deg); }
+      100% { right: 18%; transform: translateY(-35%) rotate(15deg) scale(0.8); opacity: 0.55; }
+    }
+
+    .chicken-peck .winner { animation: chicken-peck-anim 1.05s ease-in-out forwards; }
+    .chicken-peck .loser { animation: bee-buzz 1.05s ease-in-out forwards; }
+
+    @keyframes chicken-peck-anim {
+      0%, 100% { left: 15%; transform: translateY(-50%); }
+      25% { left: 42%; transform: translateY(-62%) rotate(-30deg); }
+      50% { left: 58%; transform: translateY(-48%) rotate(12deg); }
+      75% { left: 52%; transform: translateY(-52%) rotate(-18deg); }
+    }
+
+    @keyframes bee-buzz {
+      0%, 100% { transform: translateY(-50%); }
+      25% { transform: translate(6px, -62%); }
+      50% { transform: translate(-5px, -42%); }
+      75% { transform: translate(4px, -58%) scale(0.9); }
+    }
+
+    .tiger-pounce .winner { animation: tiger-jump 1.15s cubic-bezier(0.34, 1.25, 0.64, 1) forwards; }
+    .tiger-pounce .loser { animation: human-fall 0.55s 0.75s ease-out forwards; }
+
+    @keyframes tiger-jump {
+      0% { left: 8%; top: 50%; transform: translateY(-50%) scale(0.85); }
+      45% { left: 38%; top: 8%; transform: translateY(0) scale(1.35); }
+      100% { left: 50%; top: 50%; transform: translateY(-50%) scale(1.25); }
+    }
+
+    @keyframes human-fall {
+      to { transform: translateY(-25%) rotate(75deg) scale(0.75); opacity: 0.45; }
+    }
+
+    .gun-shot .winner { animation: gun-aim 0.35s ease-out forwards; }
+    .gun-shot .loser { animation: tiger-hit 0.75s 0.4s ease-out forwards; }
+
+    .gun-shot::after {
+      content: '';
+      position: absolute;
+      left: 42%;
+      top: 58%;
+      width: 90px;
+      height: 90px;
+      background: radial-gradient(circle, rgba(255, 230, 120, 0.95) 0%, transparent 68%);
+      transform: scale(0);
+      opacity: 0;
+      animation: muzzle-flash 0.35s 0.38s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes gun-aim {
+      to { transform: translateY(-50%) scale(1.25) rotate(-12deg); }
+    }
+
+    @keyframes muzzle-flash {
+      0% { transform: scale(0); opacity: 1; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+
+    @keyframes tiger-hit {
+      0% { transform: translateY(-50%); opacity: 1; }
+      35% { transform: translateY(-50%) translateX(12px) rotate(20deg); }
+      100% { transform: translateY(-35%) rotate(85deg) scale(0.8); opacity: 0.4; }
+    }
+
+    .skull-block .winner { animation: skull-block-anim 1.1s ease-in-out forwards; }
+    .skull-block .loser { animation: gun-recoil 1.1s ease-in-out forwards; }
+
+    @keyframes skull-block-anim {
+      0% { left: 12%; }
+      45% { left: 46%; transform: translateY(-50%) scale(1.3); }
+      100% { left: 44%; transform: translateY(-50%) scale(1.18); }
+    }
+
+    @keyframes gun-recoil {
+      0% { transform: translateY(-50%); opacity: 1; }
+      35% { transform: translateY(-50%) translateX(8px) rotate(25deg); }
+      100% { transform: translateY(-42%) translateX(18px) rotate(50deg) scale(0.85); opacity: 0.5; }
+    }
+
     .hidden { display: none !important; }
 
     @media (max-width: 520px) {
-      .play-area { gap: 12px; }
-      .played-card { width: 80px; height: 112px; }
-      .hand-card { width: 64px; height: 88px; }
-      .card-icon { font-size: 2rem; }
-      .hand-card .card-icon { font-size: 1.5rem; }
+      .app { padding: 12px 10px 6px; }
+      header { margin-bottom: 12px; padding: 0 44px; }
+      header h1 { letter-spacing: 0.08em; }
+      .cycle-bar { font-size: 0.65rem; margin: 10px 0 14px; padding: 10px 12px; }
+      .play-area { gap: 10px; min-height: 110px; }
+      .played-card { width: var(--card-played-w); height: var(--card-played-h); }
+      .played-card .card-icon { font-size: 2.2rem; }
+      .played-card .card-label { font-size: 0.85rem; }
+      .player-zone { padding: 12px; border-radius: 12px; }
+      .player-name { font-size: 1rem; }
+      .result-banner { font-size: 0.9rem; min-height: 48px; padding: 10px 14px; }
+      button { padding: 12px 22px; font-size: 0.9rem; }
+      .music-toggle { width: 40px; height: 40px; padding: 0; min-height: 0; }
+      .music-toggle .music-icon { width: 18px; height: 18px; }
+      .lobby { padding: 22px 16px; }
+      .join-row { gap: 8px; }
+      .join-row .btn-secondary { min-width: 64px; padding: 12px 12px; font-size: 0.88rem; }
+      .join-row input { font-size: 1rem; letter-spacing: 0.12em; padding: 12px 8px; }
+      .room-code { font-size: 2rem; }
+      .game-grid { gap: 12px; }
+      .game-card { min-height: 136px; padding: 16px 14px; }
+
+      #gamePanel {
+        padding-bottom: calc(var(--card-hand-h) + 52px + env(safe-area-inset-bottom, 0px));
+      }
+
+      #zoneMe .hand-dock {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 30;
+        margin: 0;
+        padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+        padding-left: max(10px, env(safe-area-inset-left));
+        padding-right: max(10px, env(safe-area-inset-right));
+        background: rgba(15, 20, 25, 0.97);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(212, 168, 83, 0.25);
+        box-shadow: 0 -10px 32px rgba(0, 0, 0, 0.45);
+      }
+
+      #handLabel {
+        margin-bottom: 6px;
+        font-size: 0.78rem;
+        color: var(--gold);
+      }
+
+      #zoneMe .hand-scroll {
+        width: 100%;
+      }
+
+      #zoneMe .hand {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        min-height: var(--card-hand-h);
+        padding: 2px 4px 4px;
+      }
+
+      #zoneMe .hand-card {
+        flex-shrink: 0;
+        width: var(--card-hand-w);
+        height: var(--card-hand-h);
+        min-width: var(--card-hand-w);
+        min-height: var(--card-hand-h);
+      }
+
+      #zoneMe .hand-card .card-icon { font-size: 2.1rem; }
+      #zoneMe .hand-card .card-label { font-size: 0.82rem; }
+      #zoneMe .hand-card .card-beat { font-size: 0.68rem; padding: 3px 8px; }
+
+      .toast {
+        bottom: calc(var(--card-hand-h) + 64px + env(safe-area-inset-bottom, 0px));
+      }
     }
   </style>
 </head>
 <body>
   <div class="app">
     <header>
-      <h1>六兽相克</h1>
-      <p id="headerSubtitle">24 张卡牌 · 双人在线对战</p>
+      <h1 id="siteTitle">小游戏大厅</h1>
+      <p id="headerSubtitle">精选双人在线小游戏 · 随时开玩</p>
     </header>
 
     <div class="status-bar" id="statusBar">正在连接服务器…</div>
 
-    <div class="lobby" id="lobbyPanel">
-      <h2>加入对战</h2>
+    <div id="hubPanel">
+      <div class="hub-banner">
+        <p class="hub-tag">在线联机</p>
+        <p class="hub-desc">选一个游戏开始对战<br>创建房间，把房间号发给朋友即可加入</p>
+      </div>
+      <div class="game-grid" id="gameGrid"></div>
+      <p class="hub-note">以后新游戏会出现在上方列表里，共用这一个网址，不用换地址。</p>
+    </div>
+
+    <div class="lobby hidden" id="lobbyPanel">
+      <button type="button" class="btn-back" id="btnBackHub">← 返回大厅</button>
+      <h2 id="lobbyGameTitle">六兽相克</h2>
       <div id="lobbyForm">
         <div class="lobby-actions">
           <button class="btn-primary" id="btnCreateRoom" disabled>创建房间</button>
@@ -628,7 +1211,11 @@
       <div class="waiting-room hidden" id="waitingRoom">
         <p><span class="pulse-dot"></span>等待对手加入</p>
         <div class="room-code" id="displayRoomCode">----</div>
-        <p>将房间号发给朋友，对方输入后即可开始</p>
+        <p>把房间号或邀请链接发给朋友</p>
+        <div class="share-actions">
+          <button type="button" class="btn-secondary btn-small" id="btnCopyCode">复制房间号</button>
+          <button type="button" class="btn-secondary btn-small" id="btnShareInvite">复制邀请链接</button>
+        </div>
         <button class="btn-secondary" id="btnCancelWait" style="margin-top: 20px;">取消</button>
       </div>
     </div>
@@ -680,7 +1267,12 @@
           <div class="play-area">
             <div class="played-card empty" id="cardMe">等待出牌</div>
           </div>
-          <div class="hand" id="myHand"></div>
+          <div class="hand-dock" id="handDock">
+            <div id="handLabel"></div>
+            <div class="hand-scroll">
+              <div class="hand" id="myHand"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -696,11 +1288,71 @@
       <h2 id="modalTitle">游戏结束</h2>
       <p id="modalText"></p>
       <button class="btn-primary" id="btnModalRematch">再来一局</button>
+      <button class="btn-secondary btn-small" id="btnModalLobby" style="margin-top: 12px;">返回大厅</button>
     </div>
   </div>
 
+  <div class="toast" id="toast"></div>
+
+  <div class="matchup-overlay" id="matchupOverlay" aria-hidden="true">
+    <div class="matchup-scene" id="matchupScene">
+      <p class="matchup-caption" id="matchupCaption"></p>
+      <div class="matchup-actors">
+        <span class="matchup-actor winner" id="matchupWinner"></span>
+        <span class="matchup-actor loser" id="matchupLoser"></span>
+      </div>
+    </div>
+  </div>
+
+  <button type="button" class="music-toggle" id="btnMusicToggle" title="音乐开关" aria-label="音乐开关"></button>
+
   <script>
     const ICONS = { '烂头': '💀', '枪': '🔫', '老虎': '🐯', '人': '🧑', '鸡': '🐔', '蜜蜂': '🐝' };
+    const CARD_ORDER = ['烂头', '枪', '老虎', '人', '鸡', '蜜蜂'];
+    const BEATS = { '烂头': '枪', '枪': '老虎', '老虎': '人', '人': '鸡', '鸡': '蜜蜂', '蜜蜂': '烂头' };
+    const BEAT_HINT = { '烂头': '克枪', '枪': '克虎', '老虎': '克人', '人': '克鸡', '鸡': '克蜂', '蜜蜂': '克烂头' };
+
+    /* 克制动画表：赢家-输家 → 动画 id；换自己的图时改 CSS 里对应 class */
+    const MATCHUP_ANIMS = {
+      '蜜蜂-烂头': { id: 'bee-sting', duration: 1200, caption: '蜜蜂蛰烂头！' },
+      '人-鸡':     { id: 'man-chicken', duration: 1300, caption: '人捉鸡！' },
+      '鸡-蜜蜂':   { id: 'chicken-peck', duration: 1200, caption: '鸡啄蜜蜂！' },
+      '老虎-人':   { id: 'tiger-pounce', duration: 1300, caption: '老虎扑人！' },
+      '枪-老虎':   { id: 'gun-shot', duration: 1200, caption: '枪打老虎！' },
+      '烂头-枪':   { id: 'skull-block', duration: 1250, caption: '烂头克枪！' }
+    };
+
+    const GAMES = [
+      {
+        id: 'card-battle',
+        name: '六兽相克',
+        icon: '🃏',
+        tag: '卡牌',
+        desc: '24张牌循环克制，双人选牌对战',
+        players: '2人',
+        ready: true
+      },
+      {
+        id: 'coming-soon-1',
+        name: '敬请期待',
+        icon: '🎲',
+        tag: '开发中',
+        desc: '新游戏制作中',
+        players: '—',
+        ready: false
+      },
+      {
+        id: 'coming-soon-2',
+        name: '敬请期待',
+        icon: '🧩',
+        tag: '开发中',
+        desc: '新游戏制作中',
+        players: '—',
+        ready: false
+      }
+    ];
+
+    let currentGame = GAMES[0];
 
     let ws = null;
     let connected = false;
@@ -709,12 +1361,373 @@
     let gameState = null;
     let lastHistoryRound = 0;
     let reconnectTimer = null;
+    let pingTimer = null;
     let prevPhase = null;
     let prevResultRound = 0;
     let revealAnimId = 0;
     let revealAnimRunning = false;
+    let toastTimer = null;
+    let hapticUnlocked = false;
 
     const $ = (id) => document.getElementById(id);
+
+    const MUSIC_ICON_ON =
+      '<svg class="music-icon" viewBox="0 0 24 24" aria-hidden="true">' +
+      '<path fill="currentColor" d="M9 18V5l12-2v13"/>' +
+      '<circle cx="6" cy="18" r="3" fill="currentColor"/>' +
+      '<circle cx="18" cy="16" r="3" fill="currentColor"/></svg>';
+    const MUSIC_ICON_OFF =
+      '<svg class="music-icon" viewBox="0 0 24 24" aria-hidden="true">' +
+      '<path fill="currentColor" d="M12 4L9.91 6.09 12 8.18V4z"/>' +
+      '<path fill="currentColor" d="M4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3z"/></svg>';
+
+    function setMusicToggleIcon(on) {
+      const btn = $('btnMusicToggle');
+      btn.classList.toggle('off', !on);
+      btn.innerHTML = on ? MUSIC_ICON_ON : MUSIC_ICON_OFF;
+    }
+
+    const AudioSys = (function () {
+      // 把你的 mp3 放到项目 audio/ 目录，按下面文件名即可（也支持只放 bgm.mp3 共用）
+      const TRACKS = {
+        lobby: 'audio/lobby.mp3',
+        battle: 'audio/battle.mp3',
+        shared: 'audio/bgm.mp3'
+      };
+      const BGM_VOL = 0.42;
+
+      const PENTATONIC = [261.63, 293.66, 329.63, 392.0, 440.0, 523.25, 587.33];
+      const LOBBY_PATTERN = [0, 2, 4, 2, 1, 0, 2, 4, 3, 2, 1, 0];
+      const BATTLE_PATTERN = [0, 2, 1, 2, 4, 3, 2, 4, 5, 4, 2, 0, 1, 2, 4];
+
+      let ctx = null;
+      let bgmGain = null;
+      let sfxGain = null;
+      let enabled = localStorage.getItem('gameMusic') !== 'off';
+      let bgmMode = null;
+      let bgmTimer = null;
+      let noteIdx = 0;
+      let droneOsc = null;
+      let droneGain = null;
+      let mp3 = { lobby: null, battle: null };
+      let activeMp3 = null;
+      let mp3Ready = false;
+
+      function init() {
+        if (ctx) return;
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return;
+        ctx = new AC();
+        bgmGain = ctx.createGain();
+        sfxGain = ctx.createGain();
+        bgmGain.connect(ctx.destination);
+        sfxGain.connect(ctx.destination);
+        applyGain();
+      }
+
+      function applyGain() {
+        if (bgmGain) {
+          bgmGain.gain.value = enabled ? 0.16 : 0;
+          sfxGain.gain.value = enabled ? 0.38 : 0;
+        }
+        if (activeMp3) {
+          activeMp3.volume = enabled ? BGM_VOL : 0;
+          if (!enabled) activeMp3.pause();
+        }
+      }
+
+      function resume() {
+        init();
+        if (ctx && ctx.state === 'suspended') ctx.resume();
+      }
+
+      function loadMp3(url) {
+        return new Promise((resolve) => {
+          const a = new Audio();
+          a.loop = true;
+          a.preload = 'auto';
+          const finish = (ok) => {
+            a.oncanplaythrough = null;
+            a.onerror = null;
+            resolve(ok ? a : null);
+          };
+          a.oncanplaythrough = () => finish(true);
+          a.onerror = () => finish(false);
+          a.src = url;
+          a.load();
+        });
+      }
+
+      async function initMp3() {
+        if (mp3Ready) return;
+        mp3Ready = true;
+        const [lobby, battle, shared] = await Promise.all([
+          loadMp3(TRACKS.lobby),
+          loadMp3(TRACKS.battle),
+          loadMp3(TRACKS.shared)
+        ]);
+        mp3.lobby = lobby || shared;
+        mp3.battle = battle || shared || lobby;
+        if (!mp3.lobby && mp3.battle) mp3.lobby = mp3.battle;
+      }
+
+      function stopMp3() {
+        if (!activeMp3) return;
+        activeMp3.pause();
+        activeMp3.currentTime = 0;
+        activeMp3 = null;
+      }
+
+      function playMp3(mode) {
+        const track = mp3[mode];
+        if (!track) return false;
+        if (activeMp3 && activeMp3 !== track) {
+          activeMp3.pause();
+          activeMp3.currentTime = 0;
+        }
+        track.volume = enabled ? BGM_VOL : 0;
+        activeMp3 = track;
+        const p = track.play();
+        if (p && p.catch) p.catch(() => {});
+        return true;
+      }
+
+      function pluck(freq, when, dur, vol, dest) {
+        if (!ctx || !enabled) return;
+        const t = when || ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, t);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(vol, t + 0.025);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        osc.connect(g);
+        g.connect(dest || bgmGain);
+        osc.start(t);
+        osc.stop(t + dur + 0.08);
+      }
+
+      function tone(freq, when, dur, vol, type) {
+        if (!ctx || !enabled) return;
+        const t = when || ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const g = ctx.createGain();
+        osc.type = type || 'sine';
+        osc.frequency.setValueAtTime(freq, t);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(vol, t + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        osc.connect(g);
+        g.connect(sfxGain);
+        osc.start(t);
+        osc.stop(t + dur + 0.05);
+      }
+
+      function chord(freqs, when, dur, vol) {
+        freqs.forEach((f) => tone(f, when, dur, vol * 0.55, 'sine'));
+      }
+
+      function stopDrone() {
+        if (!droneOsc) return;
+        try {
+          droneOsc.stop();
+        } catch (_) {}
+        droneOsc.disconnect();
+        droneGain.disconnect();
+        droneOsc = null;
+        droneGain = null;
+      }
+
+      function startDrone() {
+        if (!ctx || !enabled || droneOsc) return;
+        droneOsc = ctx.createOscillator();
+        droneGain = ctx.createGain();
+        droneOsc.type = 'sine';
+        droneOsc.frequency.value = 146.83;
+        droneGain.gain.value = 0.035;
+        droneOsc.connect(droneGain);
+        droneGain.connect(bgmGain);
+        droneOsc.start();
+      }
+
+      function stopProceduralBgm() {
+        clearInterval(bgmTimer);
+        bgmTimer = null;
+        noteIdx = 0;
+        stopDrone();
+      }
+
+      function stopBgm() {
+        stopProceduralBgm();
+        stopMp3();
+        bgmMode = null;
+      }
+
+      function tickBgm() {
+        if (!ctx || !enabled || !bgmMode) return;
+        const pattern = bgmMode === 'battle' ? BATTLE_PATTERN : LOBBY_PATTERN;
+        const freq = PENTATONIC[pattern[noteIdx % pattern.length]];
+        const vol = bgmMode === 'battle' ? 0.22 : 0.18;
+        pluck(freq, ctx.currentTime, bgmMode === 'battle' ? 0.55 : 0.85, vol);
+        noteIdx++;
+      }
+
+      function startProceduralBgm(mode) {
+        stopProceduralBgm();
+        if (mode === 'battle') startDrone();
+        tickBgm();
+        bgmTimer = setInterval(tickBgm, mode === 'battle' ? 420 : 680);
+      }
+
+      async function setBgm(mode) {
+        if (!enabled) {
+          stopBgm();
+          return;
+        }
+        await initMp3();
+        resume();
+        if (bgmMode === mode && (bgmTimer || activeMp3)) return;
+
+        stopProceduralBgm();
+        if (activeMp3) {
+          activeMp3.pause();
+          activeMp3 = null;
+        }
+
+        bgmMode = mode;
+        if (playMp3(mode)) return;
+        startProceduralBgm(mode);
+      }
+
+      function unlock() {
+        resume();
+        if (enabled && !bgmMode) setBgm('lobby');
+      }
+
+      function setEnabled(on) {
+        enabled = on;
+        localStorage.setItem('gameMusic', on ? 'on' : 'off');
+        applyGain();
+        setMusicToggleIcon(on);
+        if (on) {
+          resume();
+          const inGame = !$('gamePanel').classList.contains('hidden');
+          setBgm(inGame ? 'battle' : 'lobby');
+        } else {
+          stopBgm();
+        }
+      }
+
+      function syncScene() {
+        if (!enabled) return;
+        const inGame = !$('gamePanel').classList.contains('hidden');
+        setBgm(inGame ? 'battle' : 'lobby');
+      }
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+          clearInterval(bgmTimer);
+          bgmTimer = null;
+          if (activeMp3) activeMp3.pause();
+          if (ctx && ctx.state === 'running') ctx.suspend();
+        } else if (enabled && bgmMode) {
+          if (ctx) ctx.resume();
+          if (activeMp3) {
+            activeMp3.play().catch(() => {});
+          } else if (!bgmTimer) {
+            startProceduralBgm(bgmMode);
+          }
+        }
+      });
+
+      initMp3();
+
+      return {
+        unlock,
+        syncScene,
+        setEnabled,
+        isEnabled: () => enabled,
+        sfxCard() { resume(); tone(440, ctx.currentTime, 0.08, 0.25, 'square'); },
+        sfxReveal() {
+          resume();
+          tone(330, ctx.currentTime, 0.06, 0.2, 'triangle');
+          tone(523, ctx.currentTime + 0.07, 0.1, 0.22, 'triangle');
+        },
+        sfxWinRound() { resume(); chord([523, 659, 784], ctx.currentTime, 0.35, 0.28); },
+        sfxLoseRound() { resume(); tone(196, ctx.currentTime, 0.28, 0.3, 'sawtooth'); },
+        sfxTie() { resume(); tone(349, ctx.currentTime, 0.18, 0.2, 'sine'); },
+        sfxVictory() {
+          resume();
+          [523, 659, 784, 1047].forEach((f, i) => tone(f, ctx.currentTime + i * 0.12, 0.35, 0.3, 'sine'));
+        },
+        sfxDefeat() {
+          resume();
+          [392, 330, 262, 196].forEach((f, i) => tone(f, ctx.currentTime + i * 0.14, 0.32, 0.26, 'triangle'));
+        },
+        sfxGameStart() { resume(); chord([392, 494, 587], ctx.currentTime, 0.45, 0.25); }
+      };
+    })();
+
+    function unlockHaptic() {
+      if (hapticUnlocked) return;
+      hapticUnlocked = true;
+      if (navigator.vibrate) navigator.vibrate(1);
+      AudioSys.unlock();
+    }
+
+    document.addEventListener('touchstart', unlockHaptic, { once: true, passive: true });
+    document.addEventListener('click', unlockHaptic, { once: true });
+
+    setMusicToggleIcon(AudioSys.isEnabled());
+    $('btnMusicToggle').addEventListener('click', () => {
+      unlockHaptic();
+      AudioSys.setEnabled(!AudioSys.isEnabled());
+    });
+
+    function sortHand(hand) {
+      return [...hand].sort((a, b) => CARD_ORDER.indexOf(a.type) - CARD_ORDER.indexOf(b.type));
+    }
+
+    function showToast(text) {
+      const el = $('toast');
+      el.textContent = text;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+    }
+
+    async function copyText(text) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        showToast('已复制');
+        return true;
+      } catch {
+        showToast('复制失败，请手动复制');
+        return false;
+      }
+    }
+
+    function vibrate(pattern) {
+      if (!hapticUnlocked || !navigator.vibrate) return;
+      navigator.vibrate(pattern);
+    }
+
+    function getInviteText() {
+      const url = location.origin + location.pathname;
+      return '来玩六兽相克！打开 ' + url + ' 输入房间号 ' + (roomCode || '----') + ' 加入对战';
+    }
 
     function delay(ms) {
       return new Promise((resolve) => setTimeout(resolve, ms));
@@ -753,6 +1766,8 @@
         setStatus('已连接服务器', 'ok');
         $('btnCreateRoom').disabled = false;
         $('btnJoinRoom').disabled = false;
+        clearInterval(pingTimer);
+        pingTimer = setInterval(() => send({ type: 'ping' }), 25000);
       };
 
       ws.onmessage = (e) => {
@@ -767,16 +1782,75 @@
 
       ws.onclose = () => {
         connected = false;
+        clearInterval(pingTimer);
         $('btnCreateRoom').disabled = true;
         $('btnJoinRoom').disabled = true;
-        setStatus('连接已断开，正在重连…', 'error');
+        if (gameState && !gameState.gameOver) {
+          setStatus('连接已断开，正在重连…', 'error');
+        }
         clearTimeout(reconnectTimer);
         reconnectTimer = setTimeout(connect, 2000);
       };
 
       ws.onerror = () => {
-        setStatus('连接失败，请确认已通过 start.bat 启动服务器', 'error');
+        setStatus('连接失败，请检查网络或稍后重试', 'error');
       };
+    }
+
+    function setHubHeader() {
+      $('siteTitle').textContent = '小游戏大厅';
+      $('headerSubtitle').textContent = '精选双人在线小游戏 · 随时开玩';
+    }
+
+    function setGameHeader(game) {
+      $('siteTitle').textContent = game.name;
+      $('headerSubtitle').textContent = game.desc;
+    }
+
+    function renderGameGrid() {
+      const grid = $('gameGrid');
+      grid.innerHTML = '';
+      GAMES.forEach((game) => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'game-card' + (game.ready ? '' : ' soon');
+        card.innerHTML =
+          '<span class="game-card-icon">' + game.icon + '</span>' +
+          '<span class="game-card-name">' + game.name + '</span>' +
+          '<span class="game-card-meta">' +
+            '<span' + (game.ready ? ' class="live"' : '') + '>' + (game.ready ? '可玩' : game.tag) + '</span>' +
+            '<span>' + game.players + '</span>' +
+          '</span>' +
+          '<span class="game-card-desc">' + game.desc + '</span>';
+        card.addEventListener('click', () => {
+          if (game.ready) openGameLobby(game);
+          else showToast('该游戏还在开发中，敬请期待');
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    function showHub() {
+      $('hubPanel').classList.remove('hidden');
+      $('lobbyPanel').classList.add('hidden');
+      $('gamePanel').classList.add('hidden');
+      $('overlay').classList.remove('show');
+      $('lobbyForm').classList.remove('hidden');
+      $('waitingRoom').classList.add('hidden');
+      $('roomCodeInput').value = '';
+      setHubHeader();
+      if (connected) setStatus('已连接服务器 · 请选择游戏', 'ok');
+      AudioSys.syncScene();
+    }
+
+    function openGameLobby(game) {
+      currentGame = game;
+      $('lobbyGameTitle').textContent = game.name;
+      setGameHeader(game);
+      $('hubPanel').classList.add('hidden');
+      $('lobbyPanel').classList.remove('hidden');
+      setStatus('创建房间或输入房间号加入', 'ok');
+      AudioSys.syncScene();
     }
 
     function resetToLobby() {
@@ -788,15 +1862,10 @@
       prevResultRound = 0;
       revealAnimId++;
       revealAnimRunning = false;
+      hideMatchupOverlay();
       setVsBadge(false);
-      $('gamePanel').classList.add('hidden');
-      $('lobbyForm').classList.remove('hidden');
-      $('waitingRoom').classList.add('hidden');
-      $('lobbyPanel').classList.remove('hidden');
-      $('overlay').classList.remove('show');
       $('historyList').innerHTML = '';
-      $('roomCodeInput').value = '';
-      setStatus(connected ? '已连接服务器' : '正在连接服务器…', connected ? 'ok' : '');
+      showHub();
     }
 
     function showWaiting(code) {
@@ -813,6 +1882,7 @@
       $('roomLabel').textContent = roomCode || '----';
       $('myName').textContent = playerNum === 1 ? '玩家一（我）' : '玩家二（我）';
       $('oppName').textContent = playerNum === 1 ? '玩家二' : '玩家一';
+      AudioSys.syncScene();
     }
 
     function renderCardEl(el, type, extraClass) {
@@ -843,6 +1913,50 @@
       list.insertBefore(div, list.firstChild);
     }
 
+    function getWinnerLoser(lr) {
+      if (!lr || lr.outcome === 'same' || lr.outcome === 'none') return null;
+      const t1 = lr.cardP1.type;
+      const t2 = lr.cardP2.type;
+      if (BEATS[t1] === t2) return { winner: t1, loser: t2 };
+      if (BEATS[t2] === t1) return { winner: t2, loser: t1 };
+      return null;
+    }
+
+    function getMatchupAnim(lr) {
+      const wl = getWinnerLoser(lr);
+      if (!wl) return null;
+      return MATCHUP_ANIMS[wl.winner + '-' + wl.loser] || null;
+    }
+
+    function hideMatchupOverlay() {
+      $('matchupOverlay').classList.remove('show');
+      $('matchupOverlay').setAttribute('aria-hidden', 'true');
+      $('matchupScene').className = 'matchup-scene';
+    }
+
+    async function playMatchupAnimation(lr, animId) {
+      const anim = getMatchupAnim(lr);
+      if (!anim) return;
+
+      const wl = getWinnerLoser(lr);
+      const scene = $('matchupScene');
+      scene.className = 'matchup-scene ' + anim.id;
+      $('matchupWinner').textContent = ICONS[wl.winner];
+      $('matchupLoser').textContent = ICONS[wl.loser];
+      $('matchupCaption').textContent = anim.caption;
+      $('matchupOverlay').classList.add('show');
+      $('matchupOverlay').setAttribute('aria-hidden', 'false');
+      showBanner(anim.caption, 'wait', 'showdown-pulse');
+      vibrate([20, 40, 20]);
+
+      await delay(anim.duration);
+      if (animId !== revealAnimId) {
+        hideMatchupOverlay();
+        return;
+      }
+      hideMatchupOverlay();
+    }
+
     function getRevealTypes(lr) {
       return {
         myType: playerNum === 1 ? lr.cardP1.type : lr.cardP2.type,
@@ -862,14 +1976,20 @@
         elMe.classList.add('win');
         elOpp.classList.add('lose');
         showBanner(lr.message, 'win-me');
+        vibrate([30, 50, 80]);
+        AudioSys.sfxWinRound();
       } else if (won === false) {
         elMe.classList.add('lose');
         elOpp.classList.add('win');
         showBanner(lr.message, 'win-opp');
+        vibrate([60, 40, 60, 40, 60]);
+        AudioSys.sfxLoseRound();
       } else {
         elMe.classList.add('discard');
         elOpp.classList.add('discard');
         showBanner(lr.message, 'tie');
+        vibrate(40);
+        AudioSys.sfxTie();
       }
 
       if (lr.round !== lastHistoryRound) {
@@ -895,6 +2015,8 @@
       renderCardEl(elMe, myType, 'revealed pop-in');
       renderHiddenCard(elOpp);
       showBanner('双方开牌！', 'wait');
+      vibrate(25);
+      AudioSys.sfxReveal();
 
       await delay(800);
       if (animId !== revealAnimId) return;
@@ -904,11 +2026,15 @@
       if (animId !== revealAnimId) return;
 
       renderCardEl(elOpp, oppType, 'revealed flip-reveal');
+      vibrate(35);
       await delay(900);
       if (animId !== revealAnimId) return;
 
       showBanner('比牌中…', 'wait');
-      await delay(700);
+      await delay(500);
+      if (animId !== revealAnimId) return;
+
+      await playMatchupAnimation(lr, animId);
       if (animId !== revealAnimId) return;
 
       applyRevealResult(lr);
@@ -978,6 +2104,13 @@
       $('modalText').textContent = text;
       $('overlay').classList.add('show');
       $('btnRematch').classList.remove('hidden');
+      if (s.winner === playerNum) {
+        vibrate([40, 30, 40, 30, 100]);
+        AudioSys.sfxVictory();
+      } else if (s.winner !== 0) {
+        vibrate([80, 50, 80]);
+        AudioSys.sfxDefeat();
+      }
     }
 
     function renderSelectBanner(s) {
@@ -1025,6 +2158,7 @@
       $('countOpp').textContent = s.opponentCount;
 
       const handEl = $('myHand');
+      const handLabel = $('handLabel');
       handEl.innerHTML = '';
 
       if (!s.gameOver || !revealAnimRunning) {
@@ -1039,14 +2173,30 @@
       }
 
       const canPlay = s.phase === 'select' && !s.gameOver && !s.myReady;
-      s.hand.forEach((card) => {
+      const sorted = sortHand(s.hand);
+
+      if (sorted.length > 0) {
+        handLabel.textContent = canPlay ? '点选一张打出' : (s.myReady ? '已出牌，等待对手…' : '等待下一回合…');
+      } else {
+        handLabel.textContent = '';
+      }
+
+      sorted.forEach((card) => {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'hand-card card-' + card.type;
-        btn.innerHTML = '<span class="card-icon">' + ICONS[card.type] + '</span><span class="card-label">' + card.type + '</span>';
+        btn.innerHTML =
+          '<span class="card-icon">' + ICONS[card.type] + '</span>' +
+          '<span class="card-label">' + card.type + '</span>' +
+          '<span class="card-beat">' + BEAT_HINT[card.type] + '</span>';
         btn.disabled = !canPlay;
         btn.addEventListener('click', () => {
+          if (!canPlay) return;
+          unlockHaptic();
           send({ type: 'playCard', cardId: card.id });
+          vibrate(22);
+          AudioSys.sfxCard();
+          btn.classList.add('selected');
         });
         handEl.appendChild(btn);
       });
@@ -1080,6 +2230,7 @@
         case 'opponentJoined':
           showGame();
           setStatus('对手已加入，游戏开始！', 'ok');
+          AudioSys.sfxGameStart();
           break;
 
         case 'state':
@@ -1090,12 +2241,17 @@
 
         case 'error':
           setStatus(msg.message, 'error');
+          showToast(msg.message);
+          break;
+
+        case 'pong':
           break;
 
         case 'opponentLeft':
           setStatus(msg.message, 'error');
           if (playerNum === 1) {
             $('gamePanel').classList.add('hidden');
+            $('hubPanel').classList.add('hidden');
             $('lobbyPanel').classList.remove('hidden');
             $('lobbyForm').classList.add('hidden');
             $('waitingRoom').classList.remove('hidden');
@@ -1103,6 +2259,7 @@
             gameState = null;
             lastHistoryRound = 0;
             $('historyList').innerHTML = '';
+            setGameHeader(currentGame);
           } else {
             resetToLobby();
           }
@@ -1113,6 +2270,12 @@
     function requestRematch() {
       send({ type: 'rematch' });
       $('overlay').classList.remove('show');
+    }
+
+    function leaveGame() {
+      ws.close();
+      resetToLobby();
+      connect();
     }
 
     $('btnCreateRoom').addEventListener('click', () => {
@@ -1134,20 +2297,32 @@
       if (e.key === 'Enter') $('btnJoinRoom').click();
     });
 
-    $('btnCancelWait').addEventListener('click', () => {
-      ws.close();
-      resetToLobby();
-      connect();
+    $('btnCancelWait').addEventListener('click', leaveGame);
+
+    $('btnBackHub').addEventListener('click', () => {
+      if (!$('waitingRoom').classList.contains('hidden')) {
+        leaveGame();
+        return;
+      }
+      showHub();
     });
 
-    $('btnLeave').addEventListener('click', () => {
-      ws.close();
-      resetToLobby();
-      connect();
+    $('btnLeave').addEventListener('click', leaveGame);
+
+    $('btnCopyCode').addEventListener('click', () => {
+      if (roomCode) copyText(roomCode);
+    });
+
+    $('btnShareInvite').addEventListener('click', () => {
+      copyText(getInviteText());
     });
 
     $('btnRematch').addEventListener('click', requestRematch);
     $('btnModalRematch').addEventListener('click', requestRematch);
+    $('btnModalLobby').addEventListener('click', () => {
+      $('overlay').classList.remove('show');
+      leaveGame();
+    });
 
     $('rulesToggle').addEventListener('click', () => {
       const panel = $('rulesPanel');
@@ -1156,6 +2331,8 @@
         panel.classList.contains('open') ? '收起规则 ▲' : '查看完整规则 ▼';
     });
 
+    renderGameGrid();
+    showHub();
     connect();
   </script>
 </body>

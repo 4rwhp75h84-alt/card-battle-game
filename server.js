@@ -62,6 +62,17 @@ function broadcastRoom(room, msg) {
 function getPublicState(room, playerNum) {
   const me = playerNum === 1 ? room.p1 : room.p2;
   const opp = playerNum === 1 ? room.p2 : room.p1;
+  let myPlayed = me.played ? { type: me.played.type } : null;
+  let opponentPlayed = null;
+
+  if (room.phase === 'revealed' && room.lastResult) {
+    const lr = room.lastResult;
+    myPlayed = { type: playerNum === 1 ? lr.cardP1.type : lr.cardP2.type };
+    opponentPlayed = { type: playerNum === 1 ? lr.cardP2.type : lr.cardP1.type };
+  } else if (opp && opp.played) {
+    opponentPlayed = { hidden: true };
+  }
+
   return {
     type: 'state',
     player: playerNum,
@@ -69,10 +80,10 @@ function getPublicState(room, playerNum) {
     phase: room.phase,
     hand: me.hand,
     opponentCount: opp ? opp.hand.length : 0,
-    myPlayed: me.played ? { type: me.played.type } : null,
-    opponentPlayed: opp && opp.played ? (room.phase === 'revealed' ? { type: opp.played.type } : { hidden: true }) : null,
-    myReady: !!me.played,
-    opponentReady: !!(opp && opp.played),
+    myPlayed,
+    opponentPlayed,
+    myReady: !!me.played || (room.phase === 'revealed' && !!room.lastResult),
+    opponentReady: !!(opp && opp.played) || (room.phase === 'revealed' && !!room.lastResult),
     lastResult: room.lastResult,
     gameOver: room.gameOver,
     winner: room.winner
@@ -146,7 +157,7 @@ function resolveRound(room) {
   pushState(room);
 
   clearRoomTimers(room);
-  const revealDelay = room.gameOver ? 6000 : 5500;
+  const revealDelay = room.gameOver ? 7000 : 6500;
   room.revealTimer = setTimeout(() => {
     if (!rooms.has(room.code)) return;
     if (room.phase !== 'revealed') return;
@@ -205,7 +216,8 @@ function handleMessage(ws, raw) {
       phase: 'lobby',
       gameOver: false,
       winner: null,
-      lastResult: null
+      lastResult: null,
+      createdAt: Date.now()
     };
     rooms.set(code, room);
     ws.roomCode = code;
@@ -264,8 +276,23 @@ function handleMessage(ws, raw) {
 
   if (msg.type === 'rematch') {
     if (room.p1 && room.p2) startGame(room);
+    return;
+  }
+
+  if (msg.type === 'ping') {
+    send(ws, { type: 'pong' });
   }
 }
+
+setInterval(() => {
+  const now = Date.now();
+  for (const [code, room] of rooms) {
+    if (room.phase === 'lobby' && room.createdAt && now - room.createdAt > 30 * 60 * 1000) {
+      if (room.p1 && room.p1.ws) send(room.p1.ws, { type: 'error', message: '房间超时已关闭，请重新创建' });
+      cleanupRoom(code);
+    }
+  }
+}, 60 * 1000);
 
 function cleanupRoom(code) {
   const room = rooms.get(code);

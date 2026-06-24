@@ -3,7 +3,7 @@ set -e
 
 APP_DIR="${APP_DIR:-$HOME/card-battle-game}"
 REPO="${REPO:-https://github.com/4rwhp75h84-alt/card-battle-game.git}"
-PORT="${PORT:-3000}"
+PORT="${PORT:-80}"
 
 echo "==> 安装 Node.js (如已安装可跳过)..."
 if ! command -v node >/dev/null 2>&1; then

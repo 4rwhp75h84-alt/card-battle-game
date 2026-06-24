@@ -1,7 +1,8 @@
 {
   "name": "card-battle-game",
   "version": "1.0.0",
-  "description": "六兽相克 · 双人在线卡牌对战",
+  "private": true,
+  "description": "Online 2-player card battle game",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
